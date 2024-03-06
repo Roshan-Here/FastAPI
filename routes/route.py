@@ -28,3 +28,8 @@ async def create_todo(todo:Todo):
 async def update_todo(id:str,todo:Todo):
     # override what already on db
     collection_name.find_one_and_update({"_id":ObjectId(id)},{"$set":dict(todo)})
+    
+# Delete Request
+@router.delete('/delete/{id}')
+async def delete_todo(id:str):
+    collection_name.find_one_and_delete({"_id":ObjectId(id)})
