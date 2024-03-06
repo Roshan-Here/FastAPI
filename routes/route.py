@@ -1,8 +1,10 @@
 from fastapi import APIRouter
 
+from fastapi.responses import HTMLResponse
+
 from models.todos import Todo
 
-from config.database import collection_name
+from config.database import collection_name, check_db_connection
 
 from schema.schemas import list_all_serializer,single_serial
 
@@ -10,9 +12,23 @@ from bson import ObjectId
 
 router = APIRouter()
 
+@router.get(
+    '/',
+    response_class=HTMLResponse,
+    responses={400:{"description":"404 Not Found"}, 200:{"description":"Oook"}},
+    tags=["root"],
+    )
+async def main_home():
+    db_status = check_db_connection()["status"]
+    # print(db_status)
+    return f"""<h1>Sample Crud todo backend</h1>
+    <p>Api Home page go to /docs</p>
+    <p>Databse Status : {db_status}</p>
+    """
+
 
 # Get Request
-@router.get('/')
+@router.get('/todo')
 async def get_todo():
     todos = list_all_serializer(collection_name.find())
     return todos
