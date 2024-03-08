@@ -29,3 +29,13 @@ def list_all_serializer(todos)->dict:
     return[
         single_serial(todo) for todo in todos
     ]
+    
+def retrive_student(student)->dict:
+    return{
+        "id": str(student["_id"]),
+        "fullname": student["fullname"],
+        "email": student["email"],
+        "course_of_study" : student["course_of_study"],
+        "year": student["year"],
+        "GPA": student["gpa"], 
+    }
