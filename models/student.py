@@ -12,7 +12,7 @@ class StudentModel(BaseModel):
     
     class Config:
         json_schema_extra = {
-            "exaple":{
+            "example":{
                 "fullname":"Leo paul",
                 "email":"leopaul@gmail.com",
                 "course_of_study":"CSE",

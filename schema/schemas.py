@@ -39,3 +39,12 @@ def retrive_student(student)->dict:
         "year": student["year"],
         "GPA": student["gpa"], 
     }
+    
+    
+def retrive_items(item)->dict:
+    return{
+        "id" : str(item["_id"]),
+        "name": item["name"],
+        "description": item["description"],
+        "images_url": item["image_url"],
+    }
