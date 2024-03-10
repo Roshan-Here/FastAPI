@@ -12,21 +12,24 @@ itemrouter = APIRouter()
 async def create_item(
     name:str=Form(...),
     description:str=Form(...),
-    images:UploadFile = File(None),
+    images:list[UploadFile] = File(None),
     ):
     print(type(name))
+    image_array = []
     if images:
-        contents = await images.read()
-        file_name = str(images.filename)
-        location = os.path.join(MEDIA_URI,f"{name}")
-        
-        try:
-            os.makedirs(location, exist_ok=True)
-            org_location = os.path.join(location,f'{file_name}')
-            with open(org_location,"wb") as f:
-                f.write(contents)
-        except Exception as e:
-            print(f"eror while creating dir {e}")
+        for image in images:
+            contents = await image.read()
+            file_name = str(image.filename)
+            location = os.path.join(MEDIA_URI,f"{name}")
+            
+            try:
+                os.makedirs(location, exist_ok=True)
+                org_location = os.path.join(location,f'{file_name}')
+                with open(org_location,"wb") as f:
+                    f.write(contents)
+                    image_array.append(org_location)
+            except Exception as e:
+                print(f"eror while creating dir {e}")
 
             
         print(location)
@@ -34,7 +37,7 @@ async def create_item(
     item_dict = {
         "name":name,
         "description":description,
-        "images_url": org_location,
+        "images_url": image_array,
     }
     item = item_collection.insert_one(item_dict)
     new_item = item_collection.find_one({"_id":item.inserted_id})
@@ -53,3 +56,10 @@ async def create_item(
     
     
     
+@itemrouter.get('/getall')
+async def getall_item():
+    items = item_collection.find()
+    datas = []
+    for x in items:
+        datas.append(retrive_items(x))
+    return datas

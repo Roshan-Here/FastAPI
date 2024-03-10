@@ -42,6 +42,8 @@ def retrive_student(student)->dict:
     
     
 def retrive_items(item)->dict:
+    # for x in item["images_url"]:
+    #     print(x)
     return{
         "id" : str(item["_id"]),
         "name": item["name"],
