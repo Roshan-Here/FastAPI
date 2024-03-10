@@ -5,6 +5,7 @@ from config.database import item_collection,fs,MEDIA_URI
 from models.items import ItemModel
 from schema.schemas import retrive_items
 
+from bson import ObjectId
 itemrouter = APIRouter()
 
 
@@ -101,3 +102,60 @@ def deleteall_item():
         "message":"deleted all items !"
         }
     )
+    
+@itemrouter.get("/get/{id}")
+async def get_by_id(id:str):
+    item = item_collection.find_one({"_id":id})
+    if item:
+        return retrive_items(item)
+    else:
+        JSONResponse(
+            status_code=400,
+            content={
+                "message":"unable to find item !"
+            }
+        )
+        
+@itemrouter.put("/update/{id}")
+async def update_item(
+    id:str,
+    name:str=Form(None),
+    description:str=Form(None),
+    images_url:list[UploadFile]=File(None)
+    ):
+    item = item_collection.find_one({"_id":ObjectId(id)})
+    if not name:
+        name = item["name"]
+    if not description:
+        description = item["description"]
+    if not images_url:
+        images_url = item["images_url"]
+    
+            
+    image_array = []
+    if images_url:
+        for image in images_url:
+            contents = await image.read()
+            file_name = str(image.filename)
+            location = os.path.join(MEDIA_URI,f"{name}")
+            
+            try:
+                os.makedirs(location, exist_ok=True)
+                org_location = os.path.join(location,f'{file_name}')
+                with open(org_location,"wb") as f:
+                    f.write(contents)
+                    image_array.append(org_location)
+            except Exception as e:
+                print(f"eror while creating dir {e}")
+
+            
+        print(location)
+        print(org_location)
+    item_dict = {
+        "name":name,
+        "description":description,
+        "images_url": image_array,
+    }
+    item = item_collection.update_one({"_id":ObjectId(id)},{"$set":item_dict})
+    new_item = item_collection.find_one({"_id":ObjectId(id)})
+    return retrive_items(new_item)
