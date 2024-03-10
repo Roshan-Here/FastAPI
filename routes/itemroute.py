@@ -1,6 +1,6 @@
-import os
-from fastapi import APIRouter,Form,File,UploadFile
-
+import os, shutil
+from fastapi import APIRouter,Form,File,UploadFile,HTTPException
+from fastapi.responses import JSONResponse
 from config.database import item_collection,fs,MEDIA_URI
 from models.items import ItemModel
 from schema.schemas import retrive_items
@@ -63,3 +63,41 @@ async def getall_item():
     for x in items:
         datas.append(retrive_items(x))
     return datas
+
+
+@itemrouter.delete("/delete/{id}")
+def item_delete(id:str):
+    # check if id exist
+    check_id_exist = item_collection.db.find_one({"_id":id})
+    if check_id_exist:
+        item_collection.delete_one({"_id":id})
+    else:
+        raise HTTPException(status_code=400,detail="id not found")
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message":"Sucessfully deletedd the item!"
+        }
+    )
+    
+@itemrouter.delete("/deleteall")
+def deleteall_item():
+    items = item_collection.find()
+    for x in items:
+        # print(x["_id"])
+        try:
+            del_dir = os.path.join(MEDIA_URI,x["name"])
+            print(del_dir)
+            if os.path.exists(del_dir):
+                shutil.rmtree(del_dir)
+            else:
+                print("folder not found !")
+        except Exception as e:
+            raise HTTPException(status_code=400,detail=f"error {e}")
+        item_collection.delete_one({"_id":x["_id"]})
+    return JSONResponse(
+    status_code=200,
+    content={
+        "message":"deleted all items !"
+        }
+    )
