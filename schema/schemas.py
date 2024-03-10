@@ -46,5 +46,5 @@ def retrive_items(item)->dict:
         "id" : str(item["_id"]),
         "name": item["name"],
         "description": item["description"],
-        "images_url": item["image_url"],
+        "images_url": item["images_url"],
     }

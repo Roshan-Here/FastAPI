@@ -14,21 +14,31 @@ async def create_item(
     description:str=Form(...),
     images:UploadFile = File(None),
     ):
+    print(type(name))
     if images:
         contents = await images.read()
-        file_name = images.filename
-        location = os.path.join(MEDIA_URI,f'{file_name}')
-        print(location)
-        with open(location,"wb") as f:
-            f.write(contents)
+        file_name = str(images.filename)
+        location = os.path.join(MEDIA_URI,f"{name}")
+        
+        try:
+            os.makedirs(location, exist_ok=True)
+            org_location = os.path.join(location,f'{file_name}')
+            with open(org_location,"wb") as f:
+                f.write(contents)
+        except Exception as e:
+            print(f"eror while creating dir {e}")
+
             
+        print(location)
+        print(org_location)
     item_dict = {
         "name":name,
         "description":description,
-        "images_url":location
+        "images_url": org_location,
     }
     item = item_collection.insert_one(item_dict)
-        
+    new_item = item_collection.find_one({"_id":item.inserted_id})
+    return retrive_items(new_item)
         
         # nice = fs.put(contents,file_name)
         # print(nice)
@@ -40,5 +50,6 @@ async def create_item(
     # store image in instance
     # ItemMoel.image = instance obj id
     # retrive it by find_one({"_id":nice.id})
+    
     
     
