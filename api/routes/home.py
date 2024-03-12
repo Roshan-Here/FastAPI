@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from fastapi.responses import HTMLResponse
 
-from config.database import check_db_connection
+from api.config.database import check_db_connection
 
 home = APIRouter()
 

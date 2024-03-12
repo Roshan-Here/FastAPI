@@ -4,7 +4,7 @@ from pydantic import EmailStr,BaseModel,Field
 
 
 class StudentModel(BaseModel):
-    fullname : str = Field(...)
+    fullname : str = Field(...) 
     email :EmailStr = Field(...)
     course_of_study : str = Field(...)
     year :int = Field(...,gt=0,lt=9)

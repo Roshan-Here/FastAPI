@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-from models.student import StudentModel
+from api.models.student import StudentModel
 
-from config.database import student_collection
+from api.config.database import student_collection
 
-from schema.schemas import retrive_student
+from api.schema.schemas import retrive_student
 
 from bson import ObjectId
 

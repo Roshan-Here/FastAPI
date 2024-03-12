@@ -1,9 +1,9 @@
 import os, shutil
 from fastapi import APIRouter,Form,File,UploadFile,HTTPException
 from fastapi.responses import JSONResponse
-from config.database import item_collection,fs,MEDIA_URI
-from models.items import ItemModel
-from schema.schemas import retrive_items
+from api.config.database import item_collection,MEDIA_URI
+from api.models.items import ItemModel
+from api.schema.schemas import retrive_items
 
 from bson import ObjectId
 itemrouter = APIRouter()

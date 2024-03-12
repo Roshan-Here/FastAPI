@@ -15,12 +15,14 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 MEDIA_URI = os.path.join(BASE_DIR,f"media")
 print(MEDIA_URI)
 
-collection_name = db['todo_collection']
-student_collection = db['student_collection']
-item_collection = db["item_collection"]
-# file store in mongodb
-fs = gridfs.GridFS(db)
-print(fs)
+collection_name = db['todo_collection'] #to store todo datas
+student_collection = db['student_collection'] #to store student datas
+item_collection = db["item_collection"] #to store item datas
+user_collection = db['user_collection'] #to store user datas
+
+# file store in mongodb // not using
+# fs = gridfs.GridFS(db)
+# print(fs) 
 
 try:
     client.admin.command('ping')

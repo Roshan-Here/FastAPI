@@ -2,11 +2,11 @@ from fastapi import APIRouter
 
 from fastapi.responses import HTMLResponse
 
-from models.todos import Todo
+from api.models.todos import Todo
 
-from config.database import collection_name, check_db_connection
+from api.config.database import collection_name, check_db_connection
 
-from schema.schemas import list_all_serializer,single_serial
+from api.schema.schemas import list_all_serializer,single_serial
 
 from bson import ObjectId
 
