@@ -33,3 +33,11 @@ async def user_create(data:UserModel):
             }
         )
             
+@userrouter.get("/login")
+async def get_login_token(
+    username:str=Form(...),
+    password:str=Form(...),
+):
+    """
+        Generate and return acess,refresh token for login success 
+    """
