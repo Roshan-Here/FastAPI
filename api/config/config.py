@@ -87,14 +87,18 @@ def check_upload(folder_path,req_path,bucket_name='kdev-blog',s3_client=s3_clien
             # upload path -> Leo\Title\photo_2023-09-11_21-17-26.jpg
             s3_path = os.path.relpath(local_path,folder_path)
             print(s3_path)
-            path_array.append(custom_path)
+            # path_array.append(custom_path)
             print(file)
             try:
                 # path , bucket_name, file_name , ExtraArgs={'ACL': 'public-read'}
-                s3_client.upload_file(local_path,bucket_name,custom_path,ExtraArgs={'ACL': 'public-read'})
+                # s3_client.upload_file(local_path,bucket_name,custom_path,ExtraArgs={'ACL': 'public-read'})
+                download_path = f"{endpoint_url}/{custom_path}"
+                path_array.append(download_path)
+                # print("helloo..")
             except Exception as e:
                 print(f"err : {e}")
         print(path_array)
+        return path_array
     """
     upload_path = author/title/
     folder_path = media
@@ -109,12 +113,36 @@ F_PATH = os.path.join(MEDIA_URI,'Leo')
 FF_PATH = os.path.join(F_PATH,'Title')
 REQ_PATH = 'Leo/Title' # -> Author/Title
 print(FF_PATH)
-# check_upload(folder_path=FF_PATH,req_path=REQ_PATH)
+IMG_ARRAY = check_upload(folder_path=FF_PATH,req_path=REQ_PATH)
+print(IMG_ARRAY)
 shutil.rmtree(F_PATH)
     
 
+def check_download(img_array,bucket_name='kdev-blog',s3_client=s3_client):
+    for x in img_array:
+        f_name = x.split('/')[-1]
+        print(f_name)
+        # try:
+        #     s3_client.download_file(bucket_name,f_name,x)
+        # except Exception as e:
+        #     print(f"err: {e}")
+
+# check_download(IMG_ARRAY)
+
+
+
+
+
+
+
+
+
+
+
+
 bucket_list = Docean_client.list_buckets()
 # print(bucket_list['Buckets'])
+
 
 # check if folder exist or not
 def folder_exist(
@@ -123,6 +151,11 @@ def folder_exist(
 ):
     responce = D_client.list_objects_v2(bucket_name,Prefix=folder_prefix)
     return "Contents" in responce 
+
+
+
+
+
 
 
 def list_all_datas(
