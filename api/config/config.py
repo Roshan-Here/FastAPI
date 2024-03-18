@@ -1,6 +1,7 @@
 # setting up digitalOcean
 
 import os
+import shutil
 import boto3
 from dotenv import load_dotenv
 from boto3 import session
@@ -14,23 +15,26 @@ digital_ocean_bucket_secret = os.environ.get("DIGITAL_OCEAN_BUCKET_SECRET")
 region_name = os.environ.get("REGION_NAME")
 endpoint_url = os.environ.get("ENDPOINT_URL")
 
-print(f"{digital_ocean_bucket_id, digital_ocean_bucket_secret, region_name, endpoint_url}")
+# print(f"{digital_ocean_bucket_id, digital_ocean_bucket_secret, region_name, endpoint_url}")
 
-s3 = boto3.client(
+
+s3_client = boto3.client(
     's3',
     region_name=region_name,
+    endpoint_url=endpoint_url,
     aws_access_key_id=digital_ocean_bucket_id,
     aws_secret_access_key=digital_ocean_bucket_secret,
-    endpoint_url=endpoint_url
-    )    
+)
 
-try:
-    # Make the API call to list objects in the S3 bucket
-    response = s3.list_objects_v2(Bucket="kdev-blog")
-    print("Objects in the bucket:", response)
-except Exception as e:
-    print("An error occurred:", e)
-    
+# try:
+#     response = s3_client.list_buckets()
+#     buckets = response['Buckets']
+#     bucket_names = [bucket['Name'] for bucket in buckets]
+#     for bucket_name in bucket_names:
+#         print(bucket_name)
+# except KeyError:
+#     print("No buckets found.")
+
 
 # for x in s3.buckets.all():
     # print(x.name) #-> goplege-bucket
@@ -50,16 +54,67 @@ Docean_client = session.client(
 def create_bucket(bucket_name):
     try:
         location = {'LocationConstraint':region_name}
-        Docean_client.create_bucket(Bucket=bucket_name,CreateBucketConfiguration=location)
+        return Docean_client.create_bucket(Bucket=bucket_name,CreateBucketConfiguration=location)
     except ClientError as e:
         print(f"{e}")
         return f"bucket created {False}"
-    return f"bucket created {True}"        
+    # return f"bucket created {True}"        
         
         
 blog = "kdev-blog"
-res = create_bucket(blog)
-# print(res) -> bucket created
+# res = create_bucket(blog)
+# print(res) #-> bucket created
+
+
+# retriving list of objects in required bucketname
+try:
+    # Make the API call to list objects in the S3 bucket
+    response = Docean_client.list_objects_v2(Bucket="kdev-blog")
+    print("Objects in the bucket:", response)
+except Exception as e:
+    print("An error occurred:", e)
+    
+    
+def check_upload(folder_path,req_path,bucket_name='kdev-blog',s3_client=s3_client):
+    # folder_path, bucket_name="kdev-blog",s3_client=s3_client
+    for roots,dirs,files in os.walk(folder_path):
+        # print(roots,dirs,files)
+        path_array = []
+        for file in files:
+            custom_path = f"{req_path}/{file}"
+            local_path = os.path.join(roots,file)
+            print(custom_path)
+            # upload path -> Leo\Title\photo_2023-09-11_21-17-26.jpg
+            s3_path = os.path.relpath(local_path,folder_path)
+            print(s3_path)
+            path_array.append(custom_path)
+            print(file)
+            try:
+                # path , bucket_name, file_name , ExtraArgs={'ACL': 'public-read'}
+                s3_client.upload_file(local_path,bucket_name,custom_path,ExtraArgs={'ACL': 'public-read'})
+            except Exception as e:
+                print(f"err : {e}")
+        print(path_array)
+    """
+    upload_path = author/title/
+    folder_path = media
+
+    """
+
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
+# f_path = os.path.join(BASE_DIR,'media')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+MEDIA_URI = os.path.join(BASE_DIR,f"media")
+F_PATH = os.path.join(MEDIA_URI,'Leo')
+FF_PATH = os.path.join(F_PATH,'Title')
+REQ_PATH = 'Leo/Title' # -> Author/Title
+print(FF_PATH)
+# check_upload(folder_path=FF_PATH,req_path=REQ_PATH)
+shutil.rmtree(F_PATH)
+    
+
+bucket_list = Docean_client.list_buckets()
+# print(bucket_list['Buckets'])
 
 # check if folder exist or not
 def folder_exist(
